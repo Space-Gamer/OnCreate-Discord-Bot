@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from datetime import datetime
+import datetime as dt
 import requests
 import json
 import random
@@ -73,7 +74,6 @@ class General(commands.Cog):
                                            colour=discord.Colour.random()).set_image(url=data['message']))
 
     @commands.hybrid_command(name='cat', description='Rarely gives random images of cats in embeds. '
-                                                     'You must be lucky enough to get it!'
                                                      '\nKeep trying, you might end up getting a cat picture.',
                              help='Gives random cat picture.')
     async def cat(self, ctx):
@@ -84,6 +84,29 @@ class General(commands.Cog):
                                                colour=discord.Colour.random()).set_image(url=data['file']))
         else:
             await ctx.send('You did not have luck this time. Try again!')
+
+    @commands.hybrid_command(name='dogfact', description='Gives random dog facts.', help='Gives random dog fact.')
+    async def dogfact(self, ctx):
+        content = requests.get("https://dog-api.kinduff.com/api/facts").text
+        data = json.loads(content, )
+        if data['success']:
+            await ctx.send(embed=discord.Embed(title='Random Dog Fact', description=data["facts"][0],
+                                               colour=discord.Colour.random()))
+        else:
+            await ctx.send('Something went wrong. Try again!')
+
+    @commands.hybrid_command(name='iss', description='Gives the current location of the ISS.',
+                             help='Gives current location (coordinates) of the International Space Station (ISS).')
+    async def iss(self, ctx):
+        content = requests.get("http://api.open-notify.org/iss-now.json").text
+        data = json.loads(content, )
+        print(data)
+        await ctx.send(embed=discord.Embed(title='ISS Location',
+                                           description=f'Latitude: `{data["iss_position"]["latitude"]}`'
+                                                       f'\nLongitude: `{data["iss_position"]["longitude"]}`',
+                                           colour=discord.Colour.random(),
+                                           timestamp=datetime.utcnow()+dt.timedelta(hours=5, minutes=30)))
+
 
 
 
