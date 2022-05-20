@@ -100,13 +100,35 @@ class General(commands.Cog):
     async def iss(self, ctx):
         content = requests.get("http://api.open-notify.org/iss-now.json").text
         data = json.loads(content, )
-        print(data)
         await ctx.send(embed=discord.Embed(title='ISS Location',
                                            description=f'Latitude: `{data["iss_position"]["latitude"]}`'
                                                        f'\nLongitude: `{data["iss_position"]["longitude"]}`',
                                            colour=discord.Colour.random(),
                                            timestamp=datetime.utcnow()+dt.timedelta(hours=5, minutes=30)))
 
+    @commands.hybrid_command(name='bitcoin', description='Gives the current price of Bitcoin.',
+                             help='Gives current price of bitcoin.')
+    async def bitcoin(self, ctx):
+        response = requests.get("https://api.coindesk.com/v1/bpi/currentprice.json")
+        data = json.loads(response.text)
+        await ctx.send(embed=discord.Embed(title='Current Bitcoin Price', url='https://www.coindesk.com/price/',
+                                           description=f"1 BTC = `{data['bpi']['USD']['rate']} USD`",
+                                           colour=discord.Colour.random()).
+                       set_footer(text=f"Last Updated: {data['time']['updated']}"))
+
+    @commands.hybrid_command(name='bored', description='Suggests ideas or tasks to perform when you\'re bored.',
+                             help='Gives you an idea when bored.')
+    async def bored(self, ctx):
+        response = requests.get("https://www.boredapi.com/api/activity")
+        data = json.loads(response.text)
+        await ctx.reply(f"I'd suggest a *{data['type']} activity* for you!\nActivity: **{data['activity']}**")
+
+    @commands.hybrid_command(name='ip', description='Displays your public IP Address', help='Gives your public IP.')
+    async def ip(self, ctx):
+        response = requests.get("https://api.ipify.org?format=json")
+        data = json.loads(response.text)
+        await ctx.send(embed=discord.Embed(title='Public IP Address', description=f"Your public IP is `{data['ip']}`",
+                                           colour=discord.Colour.random()))
 
 
 
