@@ -74,7 +74,7 @@ class General(commands.Cog):
     @commands.hybrid_command(name='about', description='Gives information about the bot.',
                              help='Gives info about the bot.')
     async def about(self, ctx):
-        await ctx.send("**About OnCreateBot:**"
+        await ctx.send("**About OnCreate 2.O:**"
                        "\n\n+ Uses `discord.py 2.0(Beta)`"
                        "\n+ **Created by:** `Space Gamer`"
                        "\n+ **Repository link:** https://github.com/Space-Gamer/OnCreate-Discord-Bot"
