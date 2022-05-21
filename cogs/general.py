@@ -1,11 +1,9 @@
+import datetime as dt
+from datetime import datetime
+
 import discord
 from discord.ext import commands
 
-from datetime import datetime
-import datetime as dt
-import requests
-import json
-import random
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -21,7 +19,7 @@ class General(commands.Cog):
     @commands.hybrid_command('ping', description="To check latency of bot. Also to check if he's alive!",
                              help="To check latency of bot.")
     async def ping(self, ctx):
-        await ctx.send(f'Pong! `{round(self.bot.latency * 1000)} ms`')
+        await ctx.reply(f'Pong! `{round(self.bot.latency * 1000)} ms`')
 
     @commands.hybrid_command('uptime', description="To check how long bot has been up for.", help="Gives bot uptime.")
     async def uptime(self, ctx):
@@ -49,87 +47,39 @@ class General(commands.Cog):
     async def hello(self, ctx):
         await ctx.send(f'Hello {ctx.author.mention}, Hope you are keeping well!')
 
-    @commands.hybrid_command(name='quote', description="Displays inspirational quotes.",
-                             help="Gives an inspirational quote.")
-    async def quote(self, ctx):
-        response = requests.get("https://zenquotes.io/api/random")
-        json_data = json.loads(response.text)[0]
-        await ctx.send(embed=discord.Embed(title='Inspirational Quote', colour=discord.Colour.random(),
-                                           description="❝ "+str(json_data['q'])+" ❞",
-                                           url="https://zenquotes.io/").set_footer(text='- '+json_data['a']))
-
-    @commands.hybrid_command(name='memes', description='Get memes and display as an embed.', help='Gives random memes.')
-    async def memes(self, ctx):
-        content = requests.get("https://meme-api.herokuapp.com/gimme").text
-        data = json.loads(content, )
-        await ctx.send(embed=discord.Embed(title=data['title'], url=data['postLink'],
-                                           colour=discord.Colour.random()).set_image(url=data['url']))
-
-    @commands.hybrid_command(name='dog', description='Gives random images of dogs in embeds.',
-                             help='Gives random dog picture.')
-    async def dog(self, ctx):
-        content = requests.get("https://dog.ceo/api/breeds/image/random").text
-        data = json.loads(content, )
-        await ctx.send(embed=discord.Embed(title='Random Dog', url=data['message'],
-                                           colour=discord.Colour.random()).set_image(url=data['message']))
-
-    @commands.hybrid_command(name='cat', description='Rarely gives random images of cats in embeds. '
-                                                     '\nKeep trying, you might end up getting a cat picture.',
-                             help='Gives random cat picture.')
-    async def cat(self, ctx):
-        if random.choices([True, False], [0.00001, 0.99999])[0]:
-            content = requests.get("https://aws.random.cat/meow").text
-            data = json.loads(content, )
-            await ctx.send(embed=discord.Embed(title='Random Cat', url=data['file'],
-                                               colour=discord.Colour.random()).set_image(url=data['file']))
-        else:
-            await ctx.send('You did not have luck this time. Try again!')
-
-    @commands.hybrid_command(name='dogfact', description='Gives random dog facts.', help='Gives random dog fact.')
-    async def dogfact(self, ctx):
-        content = requests.get("https://dog-api.kinduff.com/api/facts").text
-        data = json.loads(content, )
-        if data['success']:
-            await ctx.send(embed=discord.Embed(title='Random Dog Fact', description=data["facts"][0],
-                                               colour=discord.Colour.random()))
-        else:
-            await ctx.send('Something went wrong. Try again!')
-
-    @commands.hybrid_command(name='iss', description='Gives the current location of the ISS.',
-                             help='Gives current location (coordinates) of the International Space Station (ISS).')
-    async def iss(self, ctx):
-        content = requests.get("http://api.open-notify.org/iss-now.json").text
-        data = json.loads(content, )
-        await ctx.send(embed=discord.Embed(title='ISS Location',
-                                           description=f'Latitude: `{data["iss_position"]["latitude"]}`'
-                                                       f'\nLongitude: `{data["iss_position"]["longitude"]}`',
-                                           colour=discord.Colour.random(),
-                                           timestamp=datetime.utcnow()+dt.timedelta(hours=5, minutes=30)))
-
-    @commands.hybrid_command(name='bitcoin', description='Gives the current price of Bitcoin.',
-                             help='Gives current price of bitcoin.')
-    async def bitcoin(self, ctx):
-        response = requests.get("https://api.coindesk.com/v1/bpi/currentprice.json")
-        data = json.loads(response.text)
-        await ctx.send(embed=discord.Embed(title='Current Bitcoin Price', url='https://www.coindesk.com/price/',
-                                           description=f"1 BTC = `{data['bpi']['USD']['rate']} USD`",
-                                           colour=discord.Colour.random()).
-                       set_footer(text=f"Last Updated: {data['time']['updated']}"))
-
-    @commands.hybrid_command(name='bored', description='Suggests ideas or tasks to perform when you\'re bored.',
-                             help='Gives you an idea when bored.')
-    async def bored(self, ctx):
-        response = requests.get("https://www.boredapi.com/api/activity")
-        data = json.loads(response.text)
-        await ctx.reply(f"I'd suggest a *{data['type']} activity* for you!\nActivity: **{data['activity']}**")
-
-    @commands.hybrid_command(name='ip', description='Displays your public IP Address', help='Gives your public IP.')
-    async def ip(self, ctx):
-        response = requests.get("https://api.ipify.org?format=json")
-        data = json.loads(response.text)
-        await ctx.send(embed=discord.Embed(title='Public IP Address', description=f"Your public IP is `{data['ip']}`",
+    @commands.hybrid_command(name='guilds', description='Display the guild names the bot is in.', hidden=True)
+    async def guilds(self, ctx):
+        guilddict = {guild.name: guild.member_count for guild in self.bot.guilds}
+        strr, i = '', 1
+        for key, value in sorted(guilddict.items(), key=lambda item: item[1], reverse=True):
+            strr += f"{i}. {key} - `{value} members`\n"
+            i += 1
+        await ctx.send(embed=discord.Embed(title='Guilds',
+                                           description=strr,
                                            colour=discord.Colour.random()))
 
+    @commands.hybrid_command(name='suggest', description='Suggests a feature for the bot.',
+                             help='Suggests a bot feature.')
+    @discord.app_commands.describe(suggestion='The feature you want to suggest.')
+    async def suggest(self, ctx, suggestion: str):
+        embedd = discord.Embed(title='Suggestion', description=f"{suggestion}", colour=discord.Colour.random(),
+                               timestamp=datetime.utcnow() + dt.timedelta(hours=5, minutes=30)) \
+            .set_thumbnail(url=ctx.message.author.avatar).set_footer(text=f"Suggested by {ctx.author.name}")
+        await self.bot.get_guild(934632146948227133).get_channel(934632149477359646). \
+            send(embed=embedd)
+        await ctx.reply(embed=embedd)
+        await ctx.reply('Thank you for your suggestion!',
+                        delete_after=5)
+
+    @commands.hybrid_command(name='about', description='Gives information about the bot.',
+                             help='Gives info about the bot.')
+    async def about(self, ctx):
+        await ctx.send("**About OnCreateBot:**"
+                       "\n\n+ Uses `discord.py 2.0(Beta)`"
+                       "\n+ **Created by:** `Space Gamer`"
+                       "\n+ **Repository link:** https://github.com/Space-Gamer/OnCreate-Discord-Bot"
+                       "\n+ **Invite link:** https://discord.com/api/oauth2/authorize?client_id=976516646392963164"
+                       "&permissions=311623411777&scope=bot%20applications.commands")
 
 
 async def setup(bot):
