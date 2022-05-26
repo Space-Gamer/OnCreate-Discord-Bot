@@ -91,11 +91,11 @@ class Fun(commands.Cog):
         data = json.loads(response.text)
         await ctx.reply(f"I'd suggest a *{data['type']} activity* for you!\nActivity: **{data['activity']}**")
 
-    @commands.hybrid_command(name='ip', description='Displays your public IP Address', help='Gives your public IP.')
+    @commands.hybrid_command(name='ip', description='Displays the bot\'s public IP Address', help='Gives bot\'s public IP.')
     async def ip(self, ctx):
         response = requests.get("https://api.ipify.org?format=json")
         data = json.loads(response.text)
-        await ctx.reply(embed=discord.Embed(title='Public IP Address', description=f"Your public IP is `{data['ip']}`",
+        await ctx.reply(embed=discord.Embed(title='Public IP Address', description=f"The bot's public IP is `{data['ip']}`",
                                             colour=discord.Colour.random()))
 
 
