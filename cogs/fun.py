@@ -2,10 +2,13 @@ import datetime as dt
 import json
 import random
 from datetime import datetime
+from io import BytesIO
 
 import discord
 import requests
 from discord.ext import commands
+
+from cogs.tiranga import gen
 
 
 class Fun(commands.Cog):
@@ -91,12 +94,29 @@ class Fun(commands.Cog):
         data = json.loads(response.text)
         await ctx.reply(f"I'd suggest a *{data['type']} activity* for you!\nActivity: **{data['activity']}**")
 
-    @commands.hybrid_command(name='ip', description='Displays the bot\'s public IP Address', help='Gives bot\'s public IP.')
+    @commands.hybrid_command(name='ip', description='Displays the bot\'s public IP Address',
+                             help='Gives bot\'s public IP.')
     async def ip(self, ctx):
         response = requests.get("https://api.ipify.org?format=json")
         data = json.loads(response.text)
-        await ctx.reply(embed=discord.Embed(title='Public IP Address', description=f"The bot's public IP is `{data['ip']}`",
-                                            colour=discord.Colour.random()))
+        await ctx.reply(
+            embed=discord.Embed(title='Public IP Address', description=f"The bot's public IP is `{data['ip']}`",
+                                colour=discord.Colour.random()))
+
+    @commands.hybrid_command(name='tiranga', description='Generate tiranga with your or any user\'s current dp.',
+                             help='Generate tiranga pfp.')
+    async def tiranga(self, ctx, user: discord.Member = None, flag_contrast: commands.Range[float, 0.5, 2.0] = 0.75,
+                      pfp_contrast: commands.Range[float, 0.5, 2.0] = 0.7):
+        async with ctx.typing():
+            if user == None:
+                img = BytesIO(await ctx.author.avatar.read())
+            else:
+                img = BytesIO(await user.avatar.read())
+            img = gen(img, flag_contrast, pfp_contrast)
+            buffer = BytesIO()
+            img.save(buffer, format="PNG")
+            buffer.seek(0)
+            await ctx.reply(file=discord.File(buffer, filename=f'{ctx.author.name}_tirang.png'))
 
 
 async def setup(bot):
